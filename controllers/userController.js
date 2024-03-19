@@ -28,6 +28,7 @@ module.exports = {
     try {
       const userId = req.params.userId;
       const user = await User.findById(userId).populate("favoriteProducts");
+      console.log(user);
       res.status(200).json(user.favoriteProducts);
     } catch (error) {
       console.error(error);

@@ -11,7 +11,7 @@ module.exports = {
           (product) => product.cartItem.toString() === cartItem
         );
         if (existingProduct) {
-          existingProduct.quantity += 1;
+          existingProduct.quantity += quantity;
         } else {
           cart.products.push({ cartItem, quantity });
         }
@@ -60,7 +60,7 @@ module.exports = {
       if (!updateCart) {
         return res.status(404).json("Cart item not found");
       }
-      res.status(200).json(updateCart);
+      res.status(200).json("Delete cart item successfully");
     } catch (error) {
       res.status(500).json(error);
     }
