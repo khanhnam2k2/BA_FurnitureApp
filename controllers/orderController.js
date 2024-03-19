@@ -21,7 +21,6 @@ module.exports = {
   },
   createOrder: async (req, res) => {
     const { userId, products, total, address, orderType } = req.body;
-    console.log(products);
 
     try {
       // Create a new order

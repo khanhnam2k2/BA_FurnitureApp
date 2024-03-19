@@ -28,7 +28,6 @@ module.exports = {
     try {
       const userId = req.params.userId;
       const user = await User.findById(userId).populate("favoriteProducts");
-      console.log(user);
       res.status(200).json(user.favoriteProducts);
     } catch (error) {
       console.error(error);
@@ -36,7 +35,6 @@ module.exports = {
     }
   },
   removeFromFavorites: async (req, res) => {
-    console.log(2);
     const userId = req.params.userId;
     const productId = req.params.productId;
     try {
