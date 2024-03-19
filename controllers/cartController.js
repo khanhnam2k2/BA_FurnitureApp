@@ -106,4 +106,18 @@ module.exports = {
       res.status(500).json(error);
     }
   },
+  getCartItemCount: async (req, res) => {
+    const userId = req.params.userId;
+    try {
+      const cart = await Cart.findOne({ userId });
+      let itemCount;
+      if (!cart) {
+        return res.status(200).json({ itemCount: 0 });
+      }
+      itemCount = cart.products.length;
+      res.status(200).json({ itemCount });
+    } catch (error) {
+      console.log(error);
+    }
+  },
 };
