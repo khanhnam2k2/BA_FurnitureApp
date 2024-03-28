@@ -22,35 +22,31 @@ module.exports = {
   },
   loginUser: async (req, res) => {
     try {
-      const user = await User.findOne({ email: req.body.email }).populate(
-        "favoriteProducts"
-      );
+      const user = await User.findOne({ email: req.body.email });
       if (!user) {
-        return res.status(401).json("Wrong credentials provide a valid email");
+        return res.json({
+          error: "Wrong credentials. Please provide a valid email.",
+        });
       }
-
       const decryptedPassword = CryptoJs.AES.decrypt(
         user.password,
         process.env.SECRET
       );
       const decryptedpass = decryptedPassword.toString(CryptoJs.enc.Utf8);
 
-      if (decryptedpass !== req.body.password) {
-        res.status(401).json("Wrong email");
+      if (!decryptedpass || decryptedpass !== req.body.password) {
+        return res.json({
+          error: "Wrong credentials. Please provide a valid passworssd.",
+        });
       }
 
-      const userToken = jwt.sign(
-        {
-          id: user.id,
-        },
-        process.env.JWT_SEC,
-        { expiresIn: "7d" }
-      );
-
+      const userToken = jwt.sign({ id: user.id }, process.env.JWT_SEC, {
+        expiresIn: "7d",
+      });
       const { password, __v, createdAt, updatedAt, ...userData } = user._doc;
       res.status(200).json({ ...userData, token: userToken });
     } catch (error) {
-      res.status(500).json({ message: error });
+      res.status(500).json({ message: error.message });
     }
   },
 };

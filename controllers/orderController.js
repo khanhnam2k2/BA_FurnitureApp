@@ -7,21 +7,22 @@ module.exports = {
     const userId = req.params.id;
 
     try {
+      // Tìm các đơn hàng của người dùng dựa trên userId
       const userOrders = await Order.find({ userId })
+        .sort({ createdAt: -1 })
         .populate({
-          path: "productId",
-          select: "-description -product_location",
+          path: "products.orderItem", // Đảm bảo rằng orderItem được tham chiếu tới mô hình Product
+          select: "title price imageUrl", // Chọn các trường của sản phẩm cần hiển thị
         })
         .exec();
-
       res.status(200).json(userOrders);
     } catch (error) {
-      res.status(500).json(error);
+      console.error("Error fetching user orders:", error);
+      res.status(500).json({ error: "Failed to fetch user orders" });
     }
   },
   createOrder: async (req, res) => {
-    const { userId, products, total, address, orderType } = req.body;
-
+    const { userId, products, total, address, phone, orderType } = req.body;
     try {
       // Create a new order
       const newOrder = new Order({
@@ -40,6 +41,7 @@ module.exports = {
               ],
         total,
         address,
+        phone,
       });
       // Save the new order to the database
       await newOrder.save();

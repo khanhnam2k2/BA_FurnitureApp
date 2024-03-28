@@ -15,12 +15,10 @@ const OrderSchema = new mongoose.Schema(
         },
       },
     ],
-    // quantity: { type: Number, required: true },
-    // subtotal: { type: Number, required: true },
     total: { type: Number, required: true },
     delivery_status: { type: String, default: "pending" },
     address: { type: String, required: true },
-    // payment_status: { type: String, required: true },
+    phone: { type: String, required: true },
   },
   { timestamps: true }
 );
