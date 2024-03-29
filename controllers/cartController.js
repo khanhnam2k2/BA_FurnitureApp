@@ -65,47 +65,7 @@ module.exports = {
       res.status(500).json(error);
     }
   },
-  decrementCartItem: async (req, res) => {
-    const { userId, cartItem } = req.body;
 
-    try {
-      const cart = await Cart.findOne({ userId });
-      if (!cart) {
-        return res.status(404).json("Cart not found");
-      }
-      const existingProduct = cart.products.find(
-        (product) => product.cartItem.toString() === cartItem
-      );
-
-      if (!existingProduct) {
-        return res.status(404).json("Product not found");
-      }
-      if (existingProduct.quantity === 1) {
-        cart.products = cart.products.filter(
-          (product) => product.cartItem.toString() !== cartItem
-        );
-      } else {
-        existingProduct.quantity -= 1;
-      }
-
-      await cart.save();
-
-      if (existingProduct.quantity === 0) {
-        await Cart.updateOne(
-          {
-            userId,
-          },
-          {
-            $pull: { products: { cartItem } },
-          }
-        );
-      }
-
-      res.status(200).json("Product updated successfully");
-    } catch (error) {
-      res.status(500).json(error);
-    }
-  },
   getCartItemCount: async (req, res) => {
     const userId = req.params.userId;
     try {
@@ -118,6 +78,39 @@ module.exports = {
       res.status(200).json({ itemCount });
     } catch (error) {
       console.log(error);
+    }
+  },
+  updateCartItemQuantity: async (req, res) => {
+    const { cartItemId, newQuantity } = req.body;
+    console.log("a", newQuantity);
+    try {
+      const cart = await Cart.findOne({ "products._id": cartItemId });
+      if (!cart) {
+        return res.json({ error: "Cart item not found" });
+      }
+      // tim va cap nhat so luong cart item trong gio hang
+      const cartProduct = cart.products.find(
+        (product) => product._id.toString() === cartItemId
+      );
+      if (!cartProduct) {
+        return res.json({ error: "Cart item not found2" });
+      }
+
+      // lay thong tin san pham
+      const product = await Product.findById(cartProduct.cartItem);
+      if (!product) {
+        return res.json({ error: "Product not found" });
+      }
+      if (newQuantity > product.quantity) {
+        return res.json({
+          error: "New quantity is greater than product's quantity",
+        });
+      }
+      cartProduct.quantity = newQuantity;
+      await cart.save();
+      return res.status(200).json("Cart item quantity updated successfully");
+    } catch (error) {
+      res.status(500).json(error);
     }
   },
 };
