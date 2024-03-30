@@ -10,6 +10,7 @@ const UserSchema = new mongoose.Schema(
     favoriteProducts: [
       { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
     ],
+    avatar: { type: String },
   },
   { timestamps: true }
 );

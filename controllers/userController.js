@@ -64,4 +64,32 @@ module.exports = {
       res.status(500).json("Failed to remove product from favorites");
     }
   },
+  updateUserProfile: async (req, res) => {
+    const userId = req.params.id;
+    const { username, location, avatar } = req.body;
+    try {
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.json({ error: "User not found" });
+      }
+
+      // Cập nhật thông tin hồ sơ nếu được cung cấp
+      if (username) {
+        user.username = username;
+      }
+      if (location) {
+        user.location = location;
+      }
+      if (avatar) {
+        user.avatar = avatar;
+      }
+
+      // Lưu lại thay đổi
+      await user.save();
+
+      res.status(200).json("Profile updated successfully");
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  },
 };
