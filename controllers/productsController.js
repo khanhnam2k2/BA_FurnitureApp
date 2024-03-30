@@ -1,4 +1,5 @@
 const Product = require("../models/Products");
+const Category = require("../models/Category");
 const User = require("../models/User");
 module.exports = {
   createProduct: async (req, res) => {
@@ -52,27 +53,30 @@ module.exports = {
 
   searchProduct: async (req, res) => {
     try {
-      // Chuyển đổi query và dữ liệu trong cơ sở dữ liệu thành chữ thường
-      const lowerCaseQuery = req.params.key.toLowerCase();
+      const searchKey = req.params.key;
 
-      const result = await Product.aggregate([
-        {
-          $search: {
-            index: "furniture",
-            text: {
-              query: lowerCaseQuery, // Sử dụng query đã chuyển đổi thành chữ thường
-              path: ["title", "supplier", "product_location", "price"],
-              fuzzy: {
-                maxEdits: 2,
-                prefixLength: 1,
-              },
-            },
-          },
-        },
-      ]);
-      res.status(200).json(result);
+      // Tìm kiếm theo tên sản phẩm, nhà cung cấp, hoặc tên category
+      const products = await Product.find({
+        $or: [
+          { title: { $regex: searchKey, $options: "i" } }, // Tìm kiếm theo title
+          { supplier: { $regex: searchKey, $options: "i" } }, // Tìm kiếm theo supplier
+        ],
+      });
+
+      // Kiểm tra xem searchKey có phải là tên của category không
+      const category = await Category.findOne({ name: searchKey });
+      if (category) {
+        // Nếu là tên của category, thêm sản phẩm thuộc category đó vào kết quả
+        const productsInCategory = await Product.find({
+          category: category._id,
+        });
+        products.push(...productsInCategory);
+      }
+
+      res.status(200).json(products);
     } catch (error) {
-      res.status(500).json("Failed to get product");
+      console.error(error);
+      res.status(500).json({ message: "Failed to search products" });
     }
   },
   toggleFavorite: async (req, res) => {
