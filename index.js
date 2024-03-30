@@ -3,6 +3,8 @@ const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const app = express();
 const cors = require("cors");
+
+const categoryRouter = require("./routers/category");
 const productRouter = require("./routers/products");
 const authRouter = require("./routers/auth");
 const userRouter = require("./routers/user");
@@ -20,6 +22,7 @@ mongoose
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
+app.use("/api/category", categoryRouter);
 app.use("/api/products", productRouter);
 app.use("/api/", authRouter);
 app.use("/api/user", userRouter);

@@ -13,7 +13,9 @@ module.exports = {
 
   getAllProduct: async (req, res) => {
     try {
-      const products = await Product.find().sort({ createdAt: -1 });
+      const products = await Product.find()
+        .populate("category")
+        .sort({ createdAt: -1 });
       res.status(200).json(products);
     } catch (error) {
       res.status(500).json("Failed to get products");
@@ -22,10 +24,29 @@ module.exports = {
 
   getProduct: async (req, res) => {
     try {
-      const product = await Product.findById(req.params.id);
+      const product = await Product.findById(req.params.id).populate(
+        "category"
+      );
       res.status(200).json(product);
     } catch (error) {
       res.status(500).json("Failed to get product");
+    }
+  },
+  searchProductByCategory: async (req, res) => {
+    const categoryId = req.params.categoryId;
+    try {
+      let products;
+      if (!categoryId) {
+        products = await Product.find();
+      } else {
+        // Tìm kiếm các sản phẩm thuộc về category được chỉ định
+        products = await Product.find({ category: categoryId });
+      }
+
+      res.status(200).json(products);
+    } catch (error) {
+      console.log(error);
+      res.status(500).json("Failed to get products by category");
     }
   },
 
