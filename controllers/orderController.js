@@ -3,28 +3,29 @@ const Order = require("../models/Order");
 const Products = require("../models/Products");
 
 module.exports = {
+  // Hàm lấy danh sách đơn hàng
   getUserOrders: async (req, res) => {
     const userId = req.params.id;
-
     try {
       // Tìm các đơn hàng của người dùng dựa trên userId
       const userOrders = await Order.find({ userId })
         .sort({ createdAt: -1 })
         .populate({
-          path: "products.orderItem", // Đảm bảo rằng orderItem được tham chiếu tới mô hình Product
-          select: "title price imageUrl", // Chọn các trường của sản phẩm cần hiển thị
+          path: "products.orderItem",
+          select: "title price imageUrl",
         })
         .exec();
+
       res.status(200).json(userOrders);
     } catch (error) {
-      console.error("Error fetching user orders:", error);
-      res.status(500).json({ error: "Failed to fetch user orders" });
+      res.status(500).json("Một số thứ đã xảy ra sai sót");
     }
   },
+
+  // Hàm đặt hàng
   createOrder: async (req, res) => {
     const { userId, products, total, address, phone, orderType } = req.body;
     try {
-      // Create a new order
       const newOrder = new Order({
         userId,
         products:
@@ -43,14 +44,14 @@ module.exports = {
         address,
         phone,
       });
-      // Save the new order to the database
+
       await newOrder.save();
 
-      // Clear cart items after successful order if the order is from cart
+      // Xóa các mặt hàng trong giỏ hàng sau khi đặt hàng thành công nếu đơn hàng từ giỏ hàng
       if (orderType === "cart") {
         await Cart.findOneAndDelete({ userId });
 
-        // Update product inventory by subtracting ordered quantities
+        // Cập nhật tồn kho sản phẩm bằng cách trừ đi số lượng đặt hàng cho đơn hàng trong giỏ hàng
         for (const item of products) {
           const { cartItem, quantity } = item;
           await Products.findByIdAndUpdate(cartItem._id, {
@@ -58,16 +59,15 @@ module.exports = {
           });
         }
       } else if (orderType === "buyNow") {
-        // Update product inventory by subtracting ordered quantity for buyNow order
+        // Cập nhật tồn kho sản phẩm bằng cách trừ số lượng đặt hàng cho đơn hàng mua ngay
         await Products.findByIdAndUpdate(products.productId, {
           $inc: { quantity: -products.quantity },
         });
       }
 
-      res.status(201).json("Order placed successfully");
+      res.status(201).json("Đơn hàng được đặt thành công");
     } catch (error) {
-      console.log(error);
-      res.status(500).json({ error: "Failed to place order" });
+      res.status(500).json("Một số thứ đã xảy ra sai sót");
     }
   },
 };

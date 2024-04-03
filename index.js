@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const app = express();
 const cors = require("cors");
 
+// Routers
 const categoryRouter = require("./routers/category");
 const productRouter = require("./routers/products");
 const authRouter = require("./routers/auth");
@@ -16,8 +17,8 @@ dotenv.config();
 app.use(cors());
 mongoose
   .connect(process.env.MONGO_URL)
-  .then(() => console.log("db connected"))
-  .catch((err) => console.log(err));
+  .then(() => console.log("Kết nối database thành công"))
+  .catch((err) => console.log("Kết nối thất bại"));
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
@@ -30,5 +31,5 @@ app.use("/api/cart", cartRouter);
 app.use("/api/orders", orderRouter);
 
 app.listen(process.env.PORT || port, () =>
-  console.log(`Server is listening over HTTPs on http://localhost:${port}`)
+  console.log(`Máy chủ đang lắng nghe qua HTTP trên http://localhost:${port}`)
 );

@@ -1,17 +1,20 @@
 const Product = require("../models/Products");
 const Category = require("../models/Category");
 const User = require("../models/User");
+
 module.exports = {
+  // Hàm tạo mới sp
   createProduct: async (req, res) => {
     const newProduct = new Product(req.body);
     try {
       await newProduct.save();
-      res.status(200).json("Product created successfully");
+      res.status(200).json("Sản phẩm được tạo thành công");
     } catch (error) {
-      res.status(500).json("Failed to create Product");
+      res.status(500).json("Một số thứ đã xảy ra sai sót");
     }
   },
 
+  // Hàm lấy danh sách tất cả sp
   getAllProduct: async (req, res) => {
     try {
       const products = await Product.find()
@@ -19,10 +22,11 @@ module.exports = {
         .sort({ createdAt: -1 });
       res.status(200).json(products);
     } catch (error) {
-      res.status(500).json("Failed to get products");
+      res.status(500).json("Một số thứ đã xảy ra sai sót");
     }
   },
 
+  // Hàm lấy sản phẩm theo id
   getProduct: async (req, res) => {
     try {
       const product = await Product.findById(req.params.id).populate(
@@ -30,9 +34,11 @@ module.exports = {
       );
       res.status(200).json(product);
     } catch (error) {
-      res.status(500).json("Failed to get product");
+      res.status(500).json("Một số thứ đã xảy ra sai sót");
     }
   },
+
+  // Hàm tìm kiếm sp theo danh mục
   searchProductByCategory: async (req, res) => {
     const categoryId = req.params.categoryId;
     try {
@@ -46,11 +52,11 @@ module.exports = {
 
       res.status(200).json(products);
     } catch (error) {
-      console.log(error);
-      res.status(500).json("Failed to get products by category");
+      res.status(500).json("Một số thứ đã xảy ra sai sót");
     }
   },
 
+  // Hàm tìm kiếm sp
   searchProduct: async (req, res) => {
     try {
       const searchKey = req.params.key;
@@ -75,8 +81,7 @@ module.exports = {
 
       res.status(200).json(products);
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Failed to search products" });
+      res.status(500).json("Một số thứ đã xảy ra sai sót");
     }
   },
   toggleFavorite: async (req, res) => {
@@ -101,6 +106,7 @@ module.exports = {
         product.favoriteBy.push(userId);
         await product.save();
         checkIsFavorites = true;
+
         res.status(200).json(checkIsFavorites);
       } else {
         // Nếu sản phẩm đã tồn tại trong danh sách yêu thích của người dùng, hãy loại bỏ nó
@@ -112,10 +118,11 @@ module.exports = {
         product.favoriteBy.pull(userId);
         await product.save();
         checkIsFavorites = false;
+
         res.status(200).json(checkIsFavorites);
       }
     } catch (error) {
-      res.status(500).json("Failed to toggle favorite product");
+      res.status(500).json("Một số thứ đã xảy ra sai sót");
     }
   },
 };

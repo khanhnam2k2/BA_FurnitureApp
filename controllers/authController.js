@@ -3,6 +3,7 @@ const CryptoJs = require("crypto-js");
 const jwt = require("jsonwebtoken");
 
 module.exports = {
+  // Hàm tạo mới user
   createUser: async (req, res) => {
     const newUser = new User({
       username: req.body.username,
@@ -15,17 +16,18 @@ module.exports = {
     });
     try {
       await newUser.save();
-      res.status(201).json({ message: "User successfully created" });
+      res.status(201).json({ message: "Người dùng đã được tạo thành công" });
     } catch (error) {
-      res.status(500).json({ message: error });
+      res.status(500).json("Một số thứ đã xảy ra sai sót");
     }
   },
+  // Hàm đăng nhập
   loginUser: async (req, res) => {
     try {
       const user = await User.findOne({ email: req.body.email });
       if (!user) {
         return res.json({
-          error: "Wrong credentials. Please provide a valid email.",
+          error: "Thông tin xác thực sai. Vui lòng cung cấp một email hợp lệ.",
         });
       }
       const decryptedPassword = CryptoJs.AES.decrypt(
@@ -36,7 +38,7 @@ module.exports = {
 
       if (!decryptedpass || decryptedpass !== req.body.password) {
         return res.json({
-          error: "Wrong credentials. Please provide a valid passworssd.",
+          error: "Thông tin xác thực sai. Vui lòng cung cấp mật khẩu hợp lệ.",
         });
       }
 
@@ -46,7 +48,7 @@ module.exports = {
       const { password, __v, createdAt, updatedAt, ...userData } = user._doc;
       res.status(200).json({ ...userData, token: userToken });
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json("Một số thứ đã xảy ra sai sót");
     }
   },
 };

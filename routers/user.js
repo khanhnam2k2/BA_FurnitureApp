@@ -9,4 +9,5 @@ router.delete(
   userController.removeFromFavorites
 );
 router.put("/:id/updateProfile", userController.updateUserProfile);
+
 module.exports = router;
